@@ -1,6 +1,6 @@
-# Plugger
+# InfoServer
 
-**TODO: Add description**
+Elixir implementation of the restful service for info screen
 
 ## Installation
 
@@ -9,7 +9,7 @@ by adding `plugger` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:plugger, "~> 0.1.0"}]
+  [{:infoserver, "~> 0.1.0"}]
 end
 ```
 
