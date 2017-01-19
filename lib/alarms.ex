@@ -12,14 +12,14 @@ defmodule Alarms do
     get_next_alarm(date_time, alarms, holidays, 0)
   end
 
-  def get_next_alarm(date_time, alarms, holidays, offset) do
-    day = case offset do
+  def get_next_alarm(date_time, alarms, holidays, counter) do
+    day = case counter do
               0 -> date_time
               _ -> date_time |> Timex.shift(days: 1) |> Timex.beginning_of_day
             end
     case get_next_alarm_for_day(day, alarms, holidays) do
-      nil -> get_next_alarm(day, alarms, holidays,offset+1)
-      time -> case offset do
+      nil -> get_next_alarm(day, alarms, holidays,counter+1)
+      time -> case counter do
                 0 -> "Today #{time}"
                 1 -> "Tomorrow #{time}"
                 _ -> "#{Timex.format!(day, "{WDfull}")} #{time}"
@@ -57,8 +57,7 @@ defmodule Alarms do
 
   def filter_out_past_alarms(alarms, date_time) do
     time_str = Timex.format!(date_time, "{ISOtime}")
-    result = filter(alarms, fn(x)-> at(x,0)>time_str end)
-    result
+    filter(alarms, fn(x)-> at(x,0)>time_str end)
   end
 
 
