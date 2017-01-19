@@ -12,7 +12,7 @@ defmodule InfoServer.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :cowboy, :plug, :httpotion, :"elixir_feed_parser" ]]
+    [applications: [:logger, :cowboy, :plug, :httpotion, :"elixir_feed_parser" , :timex]]
   end
 
     defp deps do
@@ -21,7 +21,8 @@ defmodule InfoServer.Mixfile do
         {:plug, "~> 1.0"},
         {:httpotion, "~> 3.0.2"},
         {:"elixir_feed_parser", "~> 0.0.1"},
-        {:poison, "~> 3.0"}
+        {:poison, "~> 3.0"},
+        {:timex, "~> 3.0"}
       ]
     end
 end
