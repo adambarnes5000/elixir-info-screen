@@ -1,8 +1,51 @@
-import Enum, only: [member?: 2, filter: 2, at: 2]
+import Enum, only: [sort: 1, filter: 2, at: 2]
 
 defmodule Alarms do
 
+  @alarms_file "/home/pi/Alarms/alarms.json"
+  @holidays_file "/home/pi/Alarms/holidays.json"
+
   use Provider
+
+  def get_alarms() do
+    case File.read(@alarms_file) do
+      {:ok, file} -> file |> success
+      _ -> bad_gateway("Unable to open file #{@alarms_file}")
+    end
+  end
+
+  def get_holidays() do
+    case File.read(@holidays_file) do
+      {:ok, file} -> file |> success
+      _ -> bad_gateway("Unable to open file #{@holidays_file}")
+    end
+  end
+  
+  def save_holidays(holidays) do
+    case File.write(@holidays_file, holidays) do
+      :ok -> success("OK")
+      {:error, reason} -> bad_gateway(reason)
+    end
+  end
+
+  def save_alarms(alarms) do
+    case File.write(@alarms_file, alarms) do
+      :ok -> success("OK")
+      {:error, reason} -> bad_gateway(reason)
+    end
+  end
+
+  def get_next_alarm() do
+    with  {200, alarms} <- get_alarms(),
+          {200, holidays} <- get_holidays() do
+            date_time = Timex.now()
+            get_next_alarm(date_time,Poison.decode!(alarms),Poison.decode!(holidays)) |> success
+
+    else
+      _ -> bad_gateway("Unable to open data files")
+    end
+
+  end
 
   def get_next_alarm(_, [], _) do
     "-"
@@ -22,7 +65,8 @@ defmodule Alarms do
       time -> case counter do
                 0 -> "Today #{time}"
                 1 -> "Tomorrow #{time}"
-                _ -> "#{Timex.format!(day, "{WDfull}")} #{time}"
+                n when n<7 -> "#{Timex.format!(day, "{WDfull}")} #{time}"
+                _ -> "#{Timex.format!(day, "{ISOdate}")} #{time}"
               end
     end
   end
@@ -30,7 +74,7 @@ defmodule Alarms do
   def get_next_alarm_for_day(date_time, alarms, holidays) do
     case get_remaining_alarms(date_time, alarms, holidays) do
       [] -> nil
-      list -> Enum.sort(list) |> hd |> at(0)
+      list -> sort(list) |> hd |> at(0)
     end
   end
 
@@ -40,26 +84,24 @@ defmodule Alarms do
 
   def get_day_type(date_time, holidays)  do
     date_str = Timex.format!(date_time, "{YYYY}-{0M}-{0D}")
-    if member?(holidays, [date_str]) do
+    if [date_str] in holidays do
       "WEEKEND"
     else
       case Timex.format!(date_time, "{WDshort}") do
-        "Sat" -> "WEEKEND"
-        "Sun" -> "WEEKEND"
+        day when day in ["Sat","Sun"] -> "WEEKEND"
         _ -> "WORKDAY"
       end
     end
   end
 
   def filter_out_invalid_days(date_time, alarms, holidays) do
-    filter(alarms, fn(x) -> at(x,1)==get_day_type(date_time, holidays) || at(x,1)=="EVERYDAY" end)
+    filter(alarms, fn(x) -> at(x,1)=="EVERYDAY" || at(x,1)==get_day_type(date_time, holidays)  end)
   end
 
   def filter_out_past_alarms(alarms, date_time) do
     time_str = Timex.format!(date_time, "{ISOtime}")
     filter(alarms, fn(x)-> at(x,0)>time_str end)
   end
-
 
 
 end

@@ -22,7 +22,8 @@ defmodule InfoServer.Mixfile do
         {:httpotion, "~> 3.0.2"},
         {:"elixir_feed_parser", "~> 0.0.1"},
         {:poison, "~> 3.0"},
-        {:timex, "~> 3.0"}
+        {:timex, "~> 3.0"},
+        {:tzdata, "~> 0.1.8", override: true}
       ]
     end
 end
