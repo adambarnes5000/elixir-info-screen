@@ -17,7 +17,7 @@ defmodule Provider do
               %HTTPotion.Response{status_code: code} ->
                 {:error, "#{url} returned status #{code}"}
               %HTTPotion.ErrorResponse{message: message} ->
-                IO.puts "Error"
+                IO.puts "Error from #{url}"
                 {:error, message}
             end
           end
