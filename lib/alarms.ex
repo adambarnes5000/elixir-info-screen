@@ -51,11 +51,7 @@ defmodule Alarms do
     "-"
   end
 
-  def get_next_alarm(date_time, alarms, holidays) do
-    get_next_alarm(date_time, alarms, holidays, 0)
-  end
-
-  def get_next_alarm(date_time, alarms, holidays, counter) do
+  def get_next_alarm(date_time, alarms, holidays, counter \\ 0) do
     day = case counter do
               0 -> date_time
               _ -> date_time |> Timex.shift(days: 1) |> Timex.beginning_of_day
@@ -95,12 +91,12 @@ defmodule Alarms do
   end
 
   def filter_out_invalid_days(date_time, alarms, holidays) do
-    filter(alarms, fn(x) -> at(x,1)=="EVERYDAY" || at(x,1)==get_day_type(date_time, holidays)  end)
+    filter(alarms, &(at(&1,1)=="EVERYDAY" || at(&1,1)==get_day_type(date_time, holidays) ))
   end
 
   def filter_out_past_alarms(alarms, date_time) do
     time_str = Timex.format!(date_time, "{ISOtime}")
-    filter(alarms, fn(x)-> at(x,0)>time_str end)
+    filter(alarms, &(at(&1,0)>time_str))
   end
 
 

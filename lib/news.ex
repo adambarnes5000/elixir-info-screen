@@ -14,7 +14,7 @@ defmodule News do
 
 
   defp marshal(feed) do
-    Enum.map(feed.entries, fn(f) -> %{:title=>f.title, :detail=>f.description} end)
+    Enum.map(feed.entries, &(%{:title=>&1.title, :detail=>&1.description}))
   end
   
 end

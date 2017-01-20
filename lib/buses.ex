@@ -24,11 +24,11 @@ defmodule Buses do
   end
 
   defp marshal(data) do
-    map(get(data,"results"), fn(f) -> %{:route=>get(f,"route"), :destination=>get(f,"destination"), :time=>slice(get(f,"departuredatetime"),-8,5)} end)
+    map(get(data,"results"), &(%{:route=>&1["route"], :destination=>&1["destination"], :time=>slice(&1["departuredatetime"],-8,5)}))
   end
 
   defp only_route(data, route) do
-    filter(data, fn(d) -> d.route==route end)
+    filter(data, &(&1.route==route))
   end
   
 end
